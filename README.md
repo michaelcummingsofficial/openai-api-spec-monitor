@@ -1,6 +1,6 @@
 # OpenAI API Spec Monitor
 
-A GitHub Action that monitors the [OpenAI API Specification](https://app.stainless.com/api/spec/documented/openai/openapi.documented.yml) for changes. When a change is detected, the diff is analyzed using AI and a PR is created. The PR is automatically merged.
+A GitHub Action that monitors the [OpenAI API Specification](https://github.com/openai/openai-openapi) for changes. When a change is detected, the diff is analyzed using AI and a PR is created. The PR is automatically merged.
 
 ## Community
 
@@ -8,7 +8,7 @@ Join our [Discord Server](https://discord.gg/ZgP524sT2K) to stay updated! The bo
 
 ## How It Works
 
-1.  Downloads the latest [OpenAI spec](https://app.stainless.com/api/spec/documented/openai/openapi.documented.yml).
+1.  Downloads the latest [OpenAI spec](https://raw.githubusercontent.com/openai/openai-openapi/main/openapi.yaml).
 2.  Compares the downloaded spec with the spec cached in the repository.
 3.  If changes are detected, a summary is generated with AI based on the diff.
 4.  A PR is created, using the generated summary, and automatically merged.
