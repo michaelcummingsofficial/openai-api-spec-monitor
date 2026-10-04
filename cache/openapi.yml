@@ -8687,15 +8687,24 @@ paths:
           name: metadata
           required: false
           schema:
-            type: object
-            nullable: true
+            type:
+              - object
+              - "null"
             additionalProperties:
               type: string
           style: deepObject
           explode: true
           description: >
             Optional metadata filter. To filter, use the syntax `metadata[k]=v`.
-            Alternatively, set `metadata=null` to indicate no metadata.
+            Omitting the parameter or passing an empty object applies no
+            metadata filter. An empty value, such as `metadata[k]=`, filters for
+            that key with an empty string value.
+
+            To select jobs with null metadata, send the literal query string
+            `metadata=null`. Nullable caller types do not specify how a client
+            serializes null for a deep-object parameter. Use a raw query
+            parameter if the client omits null. Do not combine the two query
+            forms.
       responses:
         "200":
           description: OK
@@ -45855,9 +45864,9 @@ components:
                 512x512:
                   message: This legacy size suggestion is retained for SDK compatibility. Check
                     the selected GPT image model's supported sizes.
+            - type: "null"
           default: auto
           example: 1024x1024
-          nullable: true
           description: The size of the generated images. Defaults to `auto`. For
             `gpt-image-2`, `gpt-image-2-2026-04-21`, `gpt-image-2.5-sunburst`,
             `gpt-image-2.5-sunburst-2026-09-08`, `gpt-image-2.5-flare`, and
@@ -46111,9 +46120,9 @@ components:
                 1024x1792:
                   message: This legacy size suggestion is retained for SDK compatibility. Check
                     the selected GPT image model's supported sizes.
+            - type: "null"
           default: auto
           example: 1024x1024
-          nullable: true
           description: The size of the generated images. For `gpt-image-2`,
             `gpt-image-2-2026-04-21`, `gpt-image-2.5-sunburst`,
             `gpt-image-2.5-sunburst-2026-09-08`, `gpt-image-2.5-flare`, and
@@ -46410,7 +46419,6 @@ components:
 
             available models
             [here](https://developers.openai.com/api/docs/guides/moderation).
-          nullable: false
           default: omni-moderation-latest
           example: omni-moderation-2024-09-26
           anyOf:
@@ -46975,8 +46983,8 @@ components:
           anyOf:
             - type: string
             - $ref: "#/components/schemas/AssistantSupportedModels"
+            - type: "null"
           x-oaiTypeLabel: string
-          nullable: true
         reasoning_effort:
           $ref: "#/components/schemas/ReasoningEffort"
         instructions:
@@ -47266,8 +47274,8 @@ components:
                 - gpt-3.5-turbo-1106
                 - gpt-3.5-turbo-0125
                 - gpt-3.5-turbo-16k-0613
+            - type: "null"
           x-oaiTypeLabel: string
-          nullable: true
         instructions:
           description: Override the default system message of the assistant. This is
             useful for modifying the behavior on a per-run basis.
@@ -75775,19 +75783,18 @@ components:
         Up to 4 sequences where the API will stop generating further tokens. The
         returned text will not contain the stop sequence.
       default: null
-      nullable: true
       oneOf:
         - type: string
           default: <|endoftext|>
           example: |+
             
-          nullable: true
         - type: array
           minItems: 1
           maxItems: 4
           items:
             type: string
             example: '["\n"]'
+        - type: "null"
     SubmitToolOutputsRunRequest:
       type: object
       additionalProperties: false
@@ -76699,8 +76706,9 @@ components:
       properties:
         name:
           description: The name of the vector store.
-          type: string
-          nullable: true
+          type:
+            - string
+            - "null"
         expires_after:
           allOf:
             - $ref: "#/components/schemas/VectorStoreExpirationAfter"
