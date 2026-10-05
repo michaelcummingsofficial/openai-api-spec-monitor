@@ -45880,11 +45880,13 @@ components:
             `1024x1536` are supported by the GPT image models; `auto` is
             supported for models that allow automatic sizing.
         response_format:
-          type: string
+          type:
+            - string
+            - "null"
           enum:
             - url
             - b64_json
-          nullable: true
+            - null
           deprecated: true
           description: Legacy response format parameter for retired image models.
             Unsupported for GPT image models, which always return base64-encoded
@@ -46051,11 +46053,13 @@ components:
             their `2026-09-08`
               snapshots, also support `xhigh` and `max`.
         response_format:
-          type: string
+          type:
+            - string
+            - "null"
           enum:
             - url
             - b64_json
-          nullable: true
+            - null
           deprecated: true
           description: Legacy response format parameter for retired image models.
             Unsupported for GPT image models, which always return base64-encoded
@@ -46183,12 +46187,14 @@ components:
 
             set the output format to `png` or `webp`.
         style:
-          type: string
+          type:
+            - string
+            - "null"
           enum:
             - vivid
             - natural
+            - null
           example: vivid
-          nullable: true
           deprecated: true
           description: Legacy style parameter for retired image models. Unsupported for
             GPT image models; describe the desired style in the prompt instead.
@@ -46224,33 +46230,38 @@ components:
           description: The legacy model used by the retired image variations endpoint.
             This endpoint no longer accepts requests.
         n:
-          type: integer
+          type:
+            - integer
+            - "null"
           minimum: 1
           maximum: 10
           default: 1
           example: 1
-          nullable: true
           description: The number of images to generate. Must be between 1 and 10.
         response_format:
-          type: string
+          type:
+            - string
+            - "null"
           enum:
             - url
             - b64_json
+            - null
           default: url
           example: url
-          nullable: true
           description: The format in which the generated images are returned. Must be one
             of `url` or `b64_json`. URLs are only valid for 60 minutes after the
             image has been generated.
         size:
-          type: string
+          type:
+            - string
+            - "null"
           enum:
             - 256x256
             - 512x512
             - 1024x1024
+            - null
           default: 1024x1024
           example: 1024x1024
-          nullable: true
           description: The size of the generated images. Must be one of `256x256`,
             `512x512`, or `1024x1024`.
         user:
@@ -66042,7 +66053,12 @@ components:
         turn_detection:
           $ref: "#/components/schemas/RealtimeTurnDetection"
         input_audio_noise_reduction:
-          type: object
+          not:
+            type:
+              - array
+              - string
+              - number
+              - boolean
           default: null
           description: >
             Configuration for input audio noise reduction. This can be set to
@@ -66549,7 +66565,12 @@ components:
                     Configuration for input audio transcription, defaults to off and can be set to `null` to turn off once on. Input audio transcription is not native to the model, since the model consumes audio directly. Transcription runs asynchronously through [the /audio/transcriptions endpoint](https://developers.openai.com/api/reference/resources/audio/subresources/transcriptions/methods/create) and should be treated as guidance of input audio content rather than precisely what the model heard. The client can optionally set the language and prompt for transcription, these offer additional guidance to the transcription service.
                   $ref: "#/components/schemas/AudioTranscription"
                 noise_reduction:
-                  type: object
+                  not:
+                    type:
+                      - array
+                      - string
+                      - number
+                      - boolean
                   default: null
                   description: >
                     Configuration for input audio noise reduction. This can be
@@ -67311,7 +67332,12 @@ components:
 
                 but may jump in on short pauses from the user.
         input_audio_noise_reduction:
-          type: object
+          not:
+            type:
+              - array
+              - string
+              - number
+              - boolean
           default: null
           description: >
             Configuration for input audio noise reduction. This can be set to
@@ -67385,7 +67411,12 @@ components:
                     Configuration for input audio transcription, defaults to off and can be set to `null` to turn off once on. Input audio transcription is not native to the model, since the model consumes audio directly. Transcription runs asynchronously through [the /audio/transcriptions endpoint](https://developers.openai.com/api/reference/resources/audio/subresources/transcriptions/methods/create) and should be treated as guidance of input audio content rather than precisely what the model heard. The client can optionally set the language and prompt for transcription, these offer additional guidance to the transcription service.
                   $ref: "#/components/schemas/AudioTranscription"
                 noise_reduction:
-                  type: object
+                  not:
+                    type:
+                      - array
+                      - string
+                      - number
+                      - boolean
                   default: null
                   description: >
                     Configuration for input audio noise reduction. This can be
