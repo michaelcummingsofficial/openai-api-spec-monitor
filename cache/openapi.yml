@@ -32252,9 +32252,9 @@ paths:
 
         For text, you can pass a string. You can also send user messages
         containing `input_text` and `input_image` parts, with up to 128 images
-        per request. Images must be data URLs; external URLs and file IDs aren’t
-        accepted. Other message roles, function calls, files, audio, and item
-        references aren’t supported.
+        per request. Images can be base64 data URLs or publicly accessible
+        HTTP(S) URLs. File IDs aren’t accepted. Other message roles, function
+        calls, files, audio, and item references aren’t supported.
 
 
         Sometimes a question returns a refusal instead of an answer. The result
@@ -38805,6 +38805,24 @@ paths:
               "input_tokens": 11
             }
 webhooks:
+  agent_environment_expired:
+    post:
+      description: >
+        Sent when an agent environment expires and can no longer resume from a
+        snapshot.
+      requestBody:
+        description: The event payload sent by the API.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WebhookAgentEnvironmentExpired"
+      responses:
+        "200":
+          description: >
+            Return a 200 status code to acknowledge receipt of the event.
+            Non-200
+
+            status codes will be retried.
   agent_environment_failed:
     post:
       description: >
@@ -38834,6 +38852,24 @@ webhooks:
           application/json:
             schema:
               $ref: "#/components/schemas/WebhookAgentEnvironmentReady"
+      responses:
+        "200":
+          description: >
+            Return a 200 status code to acknowledge receipt of the event.
+            Non-200
+
+            status codes will be retried.
+  agent_environment_suspended:
+    post:
+      description: >
+        Sent when an agent environment is suspended and can resume from a
+        snapshot.
+      requestBody:
+        description: The event payload sent by the API.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WebhookAgentEnvironmentSuspended"
       responses:
         "200":
           description: >
@@ -79326,6 +79362,38 @@ components:
         - id
         - type
         - status
+    WebhookAgentEnvironmentExpired:
+      type: object
+      title: agent.environment.expired
+      description: >
+        Sent when an agent environment expires and can no longer resume from a
+        snapshot.
+      allOf:
+        - $ref: "#/components/schemas/WebhookAgentSessionEnvelope"
+        - type: object
+          required:
+            - type
+            - data
+          properties:
+            type:
+              type: string
+              description: The event type. Always `agent.environment.expired`.
+              enum:
+                - agent.environment.expired
+              x-stainless-const: true
+            data:
+              $ref: "#/components/schemas/AgentEnvironmentEvent"
+      x-oaiMeta:
+        name: agent.environment.expired
+        group: webhook-events
+        example: |
+          {
+            "id": "evt_123",
+            "object": "event",
+            "created_at": 1719168000,
+            "type": "agent.environment.expired",
+            "data": {"id": "ccarenv_123"}
+          }
     WebhookAgentEnvironmentFailed:
       type: object
       title: agent.environment.failed
@@ -79388,6 +79456,38 @@ components:
             "object": "event",
             "created_at": 1719168000,
             "type": "agent.environment.ready",
+            "data": {"id": "ccarenv_123"}
+          }
+    WebhookAgentEnvironmentSuspended:
+      type: object
+      title: agent.environment.suspended
+      description: >
+        Sent when an agent environment is suspended and can resume from a
+        snapshot.
+      allOf:
+        - $ref: "#/components/schemas/WebhookAgentSessionEnvelope"
+        - type: object
+          required:
+            - type
+            - data
+          properties:
+            type:
+              type: string
+              description: The event type. Always `agent.environment.suspended`.
+              enum:
+                - agent.environment.suspended
+              x-stainless-const: true
+            data:
+              $ref: "#/components/schemas/AgentEnvironmentEvent"
+      x-oaiMeta:
+        name: agent.environment.suspended
+        group: webhook-events
+        example: |
+          {
+            "id": "evt_123",
+            "object": "event",
+            "created_at": 1719168000,
+            "type": "agent.environment.suspended",
             "data": {"id": "ccarenv_123"}
           }
     WebhookAgentSessionActionRequired:
@@ -86891,6 +86991,12 @@ components:
               description: A customer-safe description derived from error_type, or null for
                 zero data retention requests.
             - type: "null"
+        detailed_explanation:
+          anyOf:
+            - type: string
+              description: A generated explanation, temporarily available for eligible zero
+                data retention alerts. Omitted when unavailable.
+            - type: "null"
       type: object
       required:
         - id
@@ -89562,8 +89668,9 @@ components:
           type: string
           minLength: 0
           maxLength: 1073741824
-          pattern: "^data:"
-          description: A base64-encoded image in a data URL.
+          pattern: ^(data:|https?://)
+          description: A base64-encoded image in a data URL or a publicly accessible
+            HTTP(S) image URL.
         detail:
           anyOf:
             - $ref: "#/components/schemas/ImageDetailParam"
@@ -89581,7 +89688,8 @@ components:
         - image_url
         - type
       additionalProperties: false
-      description: An inline image. External URLs and file IDs are not supported.
+      description: An image provided as a base64 data URL or a publicly accessible
+        HTTP(S) URL. File IDs are not supported.
     DecisionInputContentParts:
       type: array
       items:
@@ -89605,7 +89713,7 @@ components:
           maxLength: 10485760
         - $ref: "#/components/schemas/DecisionInputContentParts"
           title: Parts
-      description: Text evidence or an ordered list of text and inline image parts.
+      description: Text evidence or an ordered list of text and image parts.
     DecisionInputMessage:
       type: object
       properties:
@@ -89627,7 +89735,7 @@ components:
         - role
         - content
       additionalProperties: false
-      description: A user message containing text or inline images.
+      description: A user message containing text or images.
     DecisionInput:
       oneOf:
         - type: string
@@ -89647,10 +89755,10 @@ components:
           minItems: 0
           maxItems: 131072
       description: The text or images to evaluate for every question. Provide a text
-        string or user messages containing text and inline images. Images must
-        be inline data URLs; at most 128 images are allowed across all messages
-        in one request. External URLs, files, audio, tools, and item references
-        are not supported.
+        string or user messages containing text and images. Images can be base64
+        data URLs or publicly accessible HTTP(S) URLs; at most 128 images are
+        allowed across all messages in one request. Files, audio, tools, and
+        item references are not supported.
     QuestionParamPredicate:
       type: object
       properties:
@@ -90078,6 +90186,7 @@ components:
         - ready
         - connected
         - disconnected
+        - suspended
         - expired
         - failed
       x-enumDescriptions:
@@ -90086,6 +90195,7 @@ components:
           or use.
         - ""
         - ""
+        - The sandbox is stopped and can be resumed from its private checkpoint.
         - ""
         - ""
       description: The public lifecycle status of an execution environment.
@@ -96271,12 +96381,17 @@ components:
         - ready
         - connected
         - disconnected
+        - suspended
+        - expired
         - failed
       x-enumDescriptions:
         - The environment is being prepared.
         - The environment is ready to connect.
         - The environment is connected.
         - The environment is disconnected.
+        - The environment is stopped and can be resumed from its private
+          checkpoint.
+        - The environment and its private checkpoint have expired.
         - The environment failed to connect.
       description: The connection status of a session environment.
     SessionEnvironmentErrorResource:
@@ -96361,17 +96476,16 @@ components:
         - environment
       additionalProperties: false
       description: Emitted when a hosted session environment is ready to connect.
-    SessionEventAgentSessionTurnReasoningSummaryTextDelta:
+    SessionEventAgentSessionEnvironmentSuspended:
       type: object
       properties:
         type:
           type: string
           enum:
-            - agent.session.turn.reasoning_summary_text.delta
-          default: agent.session.turn.reasoning_summary_text.delta
+            - agent.session.environment.suspended
+          default: agent.session.environment.suspended
           x-stainless-const: true
-          description: The type of the object. Always
-            `agent.session.turn.reasoning_summary_text.delta`.
+          description: The type of the object. Always `agent.session.environment.suspended`.
         event_id:
           type: string
           minLength: 0
@@ -96386,48 +96500,28 @@ components:
             - "null"
           minLength: 0
           description: The ID of the turn associated with the event, when applicable.
-        item_id:
-          type: string
-          minLength: 0
-          description: The ID of the reasoning item.
-        output_index:
-          type: integer
-          format: int64
-          minimum: 0
-          maximum: 4294967295
-          description: The index of the item in the turn output.
-        summary_index:
-          type: integer
-          format: int64
-          minimum: 0
-          maximum: 4294967295
-          description: The index of the summary content part.
-        delta:
-          type: string
-          minLength: 0
-          description: The summary text that was appended.
+        environment:
+          $ref: "#/components/schemas/SessionEnvironmentStateResource"
+          description: The current environment state.
       required:
         - type
         - event_id
         - session_id
         - turn_id
-        - item_id
-        - output_index
-        - summary_index
-        - delta
+        - environment
       additionalProperties: false
-      description: Emitted when text is appended to a reasoning summary.
-    SessionEventAgentSessionTurnReasoningSummaryPartDone:
+      description: Emitted after an idle hosted session environment is checkpointed
+        and stopped.
+    SessionEventAgentSessionEnvironmentExpired:
       type: object
       properties:
         type:
           type: string
           enum:
-            - agent.session.turn.reasoning_summary_part.done
-          default: agent.session.turn.reasoning_summary_part.done
+            - agent.session.environment.expired
+          default: agent.session.environment.expired
           x-stainless-const: true
-          description: The type of the object. Always
-            `agent.session.turn.reasoning_summary_part.done`.
+          description: The type of the object. Always `agent.session.environment.expired`.
         event_id:
           type: string
           minLength: 0
@@ -96442,46 +96536,18 @@ components:
             - "null"
           minLength: 0
           description: The ID of the turn associated with the event, when applicable.
-        item_id:
-          type: string
-          minLength: 0
-          description: The ID of the reasoning item.
-        output_index:
-          type: integer
-          format: int64
-          minimum: 0
-          maximum: 4294967295
-          description: The index of the item in the turn output.
-        summary_index:
-          type: integer
-          format: int64
-          minimum: 0
-          maximum: 4294967295
-          description: The index of the summary part.
-        part:
-          $ref: "#/components/schemas/SummaryTextResource"
-          description: The completed summary part.
-        status:
-          type:
-            - string
-            - "null"
-          enum:
-            - incomplete
-            - null
-          description: Present as `incomplete` when summary generation was interrupted.
-          x-stainless-const: true
+        environment:
+          $ref: "#/components/schemas/SessionEnvironmentStateResource"
+          description: The current environment state.
       required:
         - type
         - event_id
         - session_id
         - turn_id
-        - item_id
-        - output_index
-        - summary_index
-        - part
-        - status
+        - environment
       additionalProperties: false
-      description: Emitted when a reasoning summary part is complete.
+      description: Emitted after a suspended hosted session environment and its
+        checkpoint expire.
     SessionEventAgentSessionEnvironmentReset:
       type: object
       properties:
@@ -97545,10 +97611,133 @@ components:
         - part
       additionalProperties: false
       description: Emitted when a reasoning summary content part is added.
+    SessionEventAgentSessionTurnReasoningSummaryPartDone:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - agent.session.turn.reasoning_summary_part.done
+          default: agent.session.turn.reasoning_summary_part.done
+          x-stainless-const: true
+          description: The type of the object. Always
+            `agent.session.turn.reasoning_summary_part.done`.
+        event_id:
+          type: string
+          minLength: 0
+          description: The unique ID of the event.
+        session_id:
+          type: string
+          minLength: 0
+          description: The ID of the session associated with the event.
+        turn_id:
+          type:
+            - string
+            - "null"
+          minLength: 0
+          description: The ID of the turn associated with the event, when applicable.
+        item_id:
+          type: string
+          minLength: 0
+          description: The ID of the reasoning item.
+        output_index:
+          type: integer
+          format: int64
+          minimum: 0
+          maximum: 4294967295
+          description: The index of the item in the turn output.
+        summary_index:
+          type: integer
+          format: int64
+          minimum: 0
+          maximum: 4294967295
+          description: The index of the summary part.
+        part:
+          $ref: "#/components/schemas/SummaryTextResource"
+          description: The completed summary part.
+        status:
+          type:
+            - string
+            - "null"
+          enum:
+            - incomplete
+            - null
+          description: Present as `incomplete` when summary generation was interrupted.
+          x-stainless-const: true
+      required:
+        - type
+        - event_id
+        - session_id
+        - turn_id
+        - item_id
+        - output_index
+        - summary_index
+        - part
+        - status
+      additionalProperties: false
+      description: Emitted when a reasoning summary part is complete.
+    SessionEventAgentSessionTurnReasoningSummaryTextDelta:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - agent.session.turn.reasoning_summary_text.delta
+          default: agent.session.turn.reasoning_summary_text.delta
+          x-stainless-const: true
+          description: The type of the object. Always
+            `agent.session.turn.reasoning_summary_text.delta`.
+        event_id:
+          type: string
+          minLength: 0
+          description: The unique ID of the event.
+        session_id:
+          type: string
+          minLength: 0
+          description: The ID of the session associated with the event.
+        turn_id:
+          type:
+            - string
+            - "null"
+          minLength: 0
+          description: The ID of the turn associated with the event, when applicable.
+        item_id:
+          type: string
+          minLength: 0
+          description: The ID of the reasoning item.
+        output_index:
+          type: integer
+          format: int64
+          minimum: 0
+          maximum: 4294967295
+          description: The index of the item in the turn output.
+        summary_index:
+          type: integer
+          format: int64
+          minimum: 0
+          maximum: 4294967295
+          description: The index of the summary content part.
+        delta:
+          type: string
+          minLength: 0
+          description: The summary text that was appended.
+      required:
+        - type
+        - event_id
+        - session_id
+        - turn_id
+        - item_id
+        - output_index
+        - summary_index
+        - delta
+      additionalProperties: false
+      description: Emitted when text is appended to a reasoning summary.
     SessionEvent:
       oneOf:
         - $ref: "#/components/schemas/SessionEventError"
         - $ref: "#/components/schemas/SessionEventAgentSessionEnvironmentReady"
+        - $ref: "#/components/schemas/SessionEventAgentSessionEnvironmentSuspended"
+        - $ref: "#/components/schemas/SessionEventAgentSessionEnvironmentExpired"
         - $ref: "#/components/schemas/SessionEventAgentSessionEnvironmentReset"
         - $ref: "#/components/schemas/SessionEventAgentOutputCommandExecutionOutputDelta"
         - $ref: "#/components/schemas/SessionEventAgentSessionCreated"
@@ -97589,10 +97778,8 @@ components:
             entAgentSessionTurnReasoningSummaryTextDone"
           error: "#/components/schemas/SessionEventError"
           agent.session.environment.ready: "#/components/schemas/SessionEventAgentSessionEnvironmentReady"
-          agent.session.turn.reasoning_summary_text.delta: "#/components/schemas/SessionE\
-            ventAgentSessionTurnReasoningSummaryTextDelta"
-          agent.session.turn.reasoning_summary_part.done: "#/components/schemas/SessionEv\
-            entAgentSessionTurnReasoningSummaryPartDone"
+          agent.session.environment.suspended: "#/components/schemas/SessionEventAgentSessionEnvironmentSuspended"
+          agent.session.environment.expired: "#/components/schemas/SessionEventAgentSessionEnvironmentExpired"
           agent.session.environment.reset: "#/components/schemas/SessionEventAgentSessionEnvironmentReset"
           agent.output.command_execution_output.delta: "#/components/schemas/SessionEvent\
             AgentOutputCommandExecutionOutputDelta"
@@ -97622,9 +97809,15 @@ components:
           agent.session.turn.output_text.done: "#/components/schemas/SessionEventAgentSessionTurnOutputTextDone"
           agent.session.turn.reasoning_summary_part.added: "#/components/schemas/SessionE\
             ventAgentSessionTurnReasoningSummaryPartAdded"
+          agent.session.turn.reasoning_summary_part.done: "#/components/schemas/SessionEv\
+            entAgentSessionTurnReasoningSummaryPartDone"
+          agent.session.turn.reasoning_summary_text.delta: "#/components/schemas/SessionE\
+            ventAgentSessionTurnReasoningSummaryTextDelta"
       x-oai-discriminator-values:
         - error
         - agent.session.environment.ready
+        - agent.session.environment.suspended
+        - agent.session.environment.expired
         - agent.session.environment.reset
         - agent.output.command_execution_output.delta
         - agent.session.created
@@ -99435,6 +99628,8 @@ components:
         - video.failed
         - agent.environment.ready
         - agent.environment.failed
+        - agent.environment.suspended
+        - agent.environment.expired
         - agent.session.created
         - agent.session.action_required
         - agent.session.in_progress
