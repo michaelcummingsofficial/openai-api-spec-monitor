@@ -30407,6 +30407,84 @@ paths:
             }
       security:
         - AdminApiKeyAuth: []
+  /organization/projects/{project_id}/service_tier_settings:
+    get:
+      summary: Retrieve project service tier settings
+      description: Retrieve the configured default and enabled service tiers for a project.
+      operationId: Retrieveprojectservicetiersettings
+      parameters:
+        - name: project_id
+          in: path
+          description: The ID of the project
+          required: true
+          schema:
+            description: The ID of the project
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectServiceTierSettingsResource"
+      x-oaiMeta:
+        group: administration
+        examples:
+          request:
+            curl: |
+              curl https://api.openai.com/v1/organization/projects/proj_abc/service_tier_settings \
+                -H "Authorization: Bearer $OPENAI_ADMIN_KEY"
+          response: |
+            {
+              "object": "project.service_tier_settings",
+              "default": "standard",
+              "enabled_tiers": "all"
+            }
+      security:
+        - AdminApiKeyAuth: []
+    post:
+      summary: Update project service tier settings
+      description: Update the default or enabled service tiers atomically. Supply at
+        least one field. Omitted fields keep their current values.
+      operationId: Updateprojectservicetiersettings
+      parameters:
+        - name: project_id
+          in: path
+          description: The ID of the project
+          required: true
+          schema:
+            description: The ID of the project
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProjectServiceTierSettingsBody"
+        required: true
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectServiceTierSettingsResource"
+      x-oaiMeta:
+        group: administration
+        examples:
+          request:
+            curl: |
+              curl https://api.openai.com/v1/organization/projects/proj_abc/service_tier_settings \
+                -H "Authorization: Bearer $OPENAI_ADMIN_KEY" \
+                -H "Content-Type: application/json" \
+                -d '{"default":"standard","enabled_tiers":[]}'
+          response: |
+            {
+              "object": "project.service_tier_settings",
+              "default": "standard",
+              "enabled_tiers": []
+            }
+      security:
+        - AdminApiKeyAuth: []
   /organization/projects/{project_id}/service_accounts/{service_account_id}/api_keys:
     post:
       summary: Create an API key for a service account
@@ -46059,6 +46137,8 @@ components:
         - $ref: "#/components/schemas/CreateModelResponseProperties"
         - type: object
           properties:
+            prompt_cache_options:
+              $ref: "#/components/schemas/PromptCacheOptionsParam"
             messages:
               description: |
                 A list of messages comprising the conversation so far. Depending on the
@@ -48839,8 +48919,6 @@ components:
         - $ref: "#/components/schemas/ModelResponseProperties"
         - type: object
           properties:
-            prompt_cache_options:
-              $ref: "#/components/schemas/PromptCacheOptionsParam"
             top_logprobs:
               description: >
                 An integer between 0 and 20 specifying the maximum number of
@@ -49337,6 +49415,8 @@ components:
           properties:
             access_programs:
               $ref: "#/components/schemas/AccessProgramsParam"
+            image:
+              $ref: "#/components/schemas/ImageOptionsParam"
             prompt_cache_options:
               $ref: "#/components/schemas/ResponsePromptCacheOptionsParam"
             service_tier:
@@ -72134,6 +72214,8 @@ components:
         - $ref: "#/components/schemas/ResponseProperties"
         - type: object
           properties:
+            image:
+              $ref: "#/components/schemas/ResolvedImageOptions"
             service_tier:
               $ref: "#/components/schemas/ServiceTierResponses"
             truncation:
@@ -76028,6 +76110,8 @@ components:
             cache_write_tokens:
               type: integer
               description: The number of input tokens that were written to the cache.
+            cache_write_tokens_details:
+              $ref: "#/components/schemas/CacheWriteTokensDetails"
           required:
             - cached_tokens
             - cache_write_tokens
@@ -84120,7 +84204,7 @@ components:
         breakpoints. For cache matching, OpenAI considers up to the latest 80
         breakpoints in the conversation, without a content-block lookback limit.
         Set `mode` to `explicit` to disable the implicit breakpoint. The `ttl`
-        defaults to `30m`, which is currently the only supported value. See the
+        defaults to `30m`. Supported lifetimes depend on the API. See the
         [prompt caching
         guide](https://developers.openai.com/api/docs/guides/prompt-caching) for
         current details.
@@ -89762,14 +89846,33 @@ components:
       type: object
       required: []
       description: Domain-specific access programs to use for this request.
+    ImageContextCompression:
+      type: string
+      enum:
+        - auto
+        - enabled
+        - disabled
+    ImageOptionsParam:
+      properties:
+        context_compression:
+          $ref: "#/components/schemas/ImageContextCompression"
+          description: Controls image context optimization. Defaults to `auto`, which uses
+            the model, transport, and input to select a policy. Use `enabled` to
+            require compression support or `disabled` to turn it off.
+      additionalProperties: false
+      type: object
+      required: []
+      description: Request level image options.
     ResponsePromptCacheOptionsParam:
       properties:
         ttl:
-          $ref: "#/components/schemas/PromptCacheTTLEnum"
+          type: string
+          enum:
+            - 30m
+            - 12h
           description: The minimum lifetime applied to every implicit and explicit cache
-            breakpoint written by the request. Defaults to `30m`, which is
-            currently the only supported value. The backend may retain cache
-            entries for longer.
+            breakpoint written by the request. Supported values are `30m` (the
+            default) and `12h`. The backend may retain cache entries for longer.
         mode:
           $ref: "#/components/schemas/PromptCacheModeEnum"
           description: Controls whether OpenAI automatically creates an implicit cache
@@ -89802,7 +89905,7 @@ components:
         breakpoints. For cache matching, OpenAI considers up to the latest 80
         breakpoints in the conversation, without a content-block lookback limit.
         Set `mode` to `explicit` to disable the implicit breakpoint. The `ttl`
-        defaults to `30m`, which is currently the only supported value. See the
+        defaults to `30m`. Supported lifetimes depend on the API. See the
         [prompt caching
         guide](https://developers.openai.com/api/docs/guides/prompt-caching) for
         current details.
@@ -89840,6 +89943,19 @@ components:
       type: object
       required:
         - type
+    ResolvedImageContextCompressionEnum:
+      type: string
+      enum:
+        - enabled
+        - disabled
+    ResolvedImageOptions:
+      properties:
+        context_compression:
+          $ref: "#/components/schemas/ResolvedImageContextCompressionEnum"
+          description: Effective image context optimization policy.
+      type: object
+      required:
+        - context_compression
     AccessProgramsBody:
       properties:
         cyber:
@@ -89848,6 +89964,18 @@ components:
       type: object
       required:
         - cyber
+    CacheWriteTokensDetails:
+      properties:
+        ttl_30m_tokens:
+          type: integer
+          description: The number of input tokens written with 30-minute retention.
+        ttl_12h_tokens:
+          type: integer
+          description: The number of input tokens written with 12-hour retention.
+      type: object
+      required:
+        - ttl_30m_tokens
+        - ttl_12h_tokens
     CachedUsageDetails:
       properties:
         cached_text_tokens:
@@ -89915,7 +90043,10 @@ components:
     PromptCacheOptions:
       properties:
         ttl:
-          $ref: "#/components/schemas/PromptCacheTTLEnum"
+          type: string
+          enum:
+            - 30m
+            - 12h
           description: The minimum lifetime applied to each cache breakpoint.
         mode:
           $ref: "#/components/schemas/PromptCacheModeEnum"
@@ -91765,6 +91896,72 @@ components:
         - object
         - deleted
       description: Confirmation payload returned after deleting a project hard spend limit.
+    ProjectDefaultServiceTier:
+      type: string
+      enum:
+        - standard
+        - fast
+        - scale
+    ProjectOptionalServiceTier:
+      type: string
+      enum:
+        - flex
+        - fast
+        - ultrafast
+    ProjectServiceTierSettingsResource:
+      properties:
+        object:
+          type: string
+          enum:
+            - project.service_tier_settings
+          default: project.service_tier_settings
+          x-stainless-const: true
+        default:
+          $ref: "#/components/schemas/ProjectDefaultServiceTier"
+          description: Default tier for requests that omit service_tier or use auto.
+        enabled_tiers:
+          oneOf:
+            - type: string
+              enum:
+                - all
+              default: all
+              x-stainless-const: true
+            - items:
+                $ref: "#/components/schemas/ProjectOptionalServiceTier"
+              type: array
+          description: Additional service tiers enabled for this project. "all" includes
+            future tiers. An empty array allows only Standard. Organization
+            policy and eligibility still apply.
+      type: object
+      required:
+        - object
+        - default
+        - enabled_tiers
+    UpdateProjectServiceTierSettingsBody:
+      anyOf:
+        - required:
+            - default
+        - required:
+            - enabled_tiers
+      properties:
+        default:
+          $ref: "#/components/schemas/ProjectDefaultServiceTier"
+          description: Default tier for requests that omit service_tier or use auto.
+        enabled_tiers:
+          oneOf:
+            - type: string
+              enum:
+                - all
+              default: all
+              x-stainless-const: true
+            - items:
+                $ref: "#/components/schemas/ProjectOptionalServiceTier"
+              type: array
+          description: Additional service tiers enabled for this project. "all" includes
+            future tiers. An empty array allows only Standard. Organization
+            policy and eligibility still apply.
+      type: object
+      required: []
     CreateProjectServiceAccountApiKeyBody:
       properties:
         name:
@@ -92564,6 +92761,9 @@ components:
                 response. This makes it simple to swap out system (or developer)
                 messages in new responses.
             - type: "null"
+        image:
+          $ref: "#/components/schemas/ImageOptionsParam"
+          description: Request level image options.
         prompt_cache_key:
           anyOf:
             - type: string
@@ -92628,6 +92828,8 @@ components:
         propertyName: type
     CompactResource:
       properties:
+        image:
+          $ref: "#/components/schemas/ResolvedImageOptions"
         id:
           type: string
           description: The unique identifier for the compacted response.
@@ -92663,6 +92865,8 @@ components:
       example:
         id: resp_001
         object: response.compaction
+        image:
+          context_compression: disabled
         output:
           - id: msg_001
             status: completed
@@ -100104,6 +100308,7 @@ components:
       type: string
       enum:
         - context_length_exceeded
+        - max_output_tokens
         - session_budget_exceeded
         - usage_limit_exceeded
         - project_spend_limit_exceeded
@@ -100128,6 +100333,7 @@ components:
         - internal_error
       x-enumDescriptions:
         - The request exceeds the model's context window.
+        - The model reached its output token limit before finishing the response.
         - The session has reached its usage budget.
         - The organization has reached a usage, plan, or billing limit.
         - The project has reached its enforced spend limit.
@@ -115093,6 +115299,9 @@ components:
                 response. This makes it simple to swap out system (or developer)
                 messages in new responses.
             - type: "null"
+        image:
+          $ref: "#/components/schemas/BetaImageOptionsParam"
+          description: Request level image options.
         prompt_cache_key:
           anyOf:
             - type: string
@@ -115154,7 +115363,7 @@ components:
         breakpoints. For cache matching, OpenAI considers up to the latest 80
         breakpoints in the conversation, without a content-block lookback limit.
         Set `mode` to `explicit` to disable the implicit breakpoint. The `ttl`
-        defaults to `30m`, which is currently the only supported value. See the
+        defaults to `30m`. Supported lifetimes depend on the API. See the
         [prompt caching
         guide](https://developers.openai.com/api/docs/guides/prompt-caching) for
         current details.
@@ -115172,6 +115381,23 @@ components:
       enum:
         - in_memory
         - 24h
+    BetaImageOptionsParam:
+      properties:
+        context_compression:
+          $ref: "#/components/schemas/BetaImageContextCompression"
+          description: Controls image context optimization. Defaults to `auto`, which uses
+            the model, transport, and input to select a policy. Use `enabled` to
+            require compression support or `disabled` to turn it off.
+      additionalProperties: false
+      type: object
+      required: []
+      description: Request level image options.
+    BetaImageContextCompression:
+      type: string
+      enum:
+        - auto
+        - enabled
+        - disabled
     BetaModelIdsCompaction:
       anyOf:
         - $ref: "#/components/schemas/BetaModelIdsResponses"
@@ -116973,6 +117199,8 @@ components:
             - type
     BetaCompactResource:
       properties:
+        image:
+          $ref: "#/components/schemas/BetaResolvedImageOptions"
         id:
           type: string
           description: The unique identifier for the compacted response.
@@ -117008,6 +117236,8 @@ components:
       example:
         id: resp_001
         object: response.compaction
+        image:
+          context_compression: disabled
         output:
           - id: msg_001
             status: completed
@@ -117057,6 +117287,8 @@ components:
             cache_write_tokens:
               type: integer
               description: The number of input tokens that were written to the cache.
+            cache_write_tokens_details:
+              $ref: "#/components/schemas/BetaCacheWriteTokensDetails"
           required:
             - cached_tokens
             - cache_write_tokens
@@ -117081,6 +117313,18 @@ components:
         - output_tokens
         - output_tokens_details
         - total_tokens
+    BetaCacheWriteTokensDetails:
+      properties:
+        ttl_30m_tokens:
+          type: integer
+          description: The number of input tokens written with 30-minute retention.
+        ttl_12h_tokens:
+          type: integer
+          description: The number of input tokens written with 12-hour retention.
+      type: object
+      required:
+        - ttl_30m_tokens
+        - ttl_12h_tokens
     BetaItemField:
       oneOf:
         - $ref: "#/components/schemas/BetaMessage"
@@ -117190,6 +117434,19 @@ components:
         - in_progress
         - completed
         - incomplete
+    BetaResolvedImageOptions:
+      properties:
+        context_compression:
+          $ref: "#/components/schemas/BetaResolvedImageContextCompressionEnum"
+          description: Effective image context optimization policy.
+      type: object
+      required:
+        - context_compression
+    BetaResolvedImageContextCompressionEnum:
+      type: string
+      enum:
+        - enabled
+        - disabled
     BetaResponseCustomToolCallInputDoneEvent:
       title: ResponseCustomToolCallInputDone
       type: object
@@ -117343,6 +117600,8 @@ components:
         - $ref: "#/components/schemas/BetaResponseProperties"
         - type: object
           properties:
+            image:
+              $ref: "#/components/schemas/BetaResolvedImageOptions"
             service_tier:
               $ref: "#/components/schemas/BetaServiceTierResponses"
             truncation:
@@ -117833,7 +118092,10 @@ components:
     BetaPromptCacheOptions:
       properties:
         ttl:
-          $ref: "#/components/schemas/BetaPromptCacheTTLEnum"
+          type: string
+          enum:
+            - 30m
+            - 12h
           description: The minimum lifetime applied to each cache breakpoint.
         mode:
           $ref: "#/components/schemas/BetaPromptCacheModeEnum"
@@ -123328,6 +123590,8 @@ components:
           properties:
             access_programs:
               $ref: "#/components/schemas/BetaAccessProgramsParam"
+            image:
+              $ref: "#/components/schemas/BetaImageOptionsParam"
             prompt_cache_options:
               $ref: "#/components/schemas/BetaResponsePromptCacheOptionsParam"
             service_tier:
@@ -123588,11 +123852,13 @@ components:
     BetaResponsePromptCacheOptionsParam:
       properties:
         ttl:
-          $ref: "#/components/schemas/BetaPromptCacheTTLEnum"
+          type: string
+          enum:
+            - 30m
+            - 12h
           description: The minimum lifetime applied to every implicit and explicit cache
-            breakpoint written by the request. Defaults to `30m`, which is
-            currently the only supported value. The backend may retain cache
-            entries for longer.
+            breakpoint written by the request. Supported values are `30m` (the
+            default) and `12h`. The backend may retain cache entries for longer.
         mode:
           $ref: "#/components/schemas/BetaPromptCacheModeEnum"
           description: Controls whether OpenAI automatically creates an implicit cache
@@ -123625,7 +123891,7 @@ components:
         breakpoints. For cache matching, OpenAI considers up to the latest 80
         breakpoints in the conversation, without a content-block lookback limit.
         Set `mode` to `explicit` to disable the implicit breakpoint. The `ttl`
-        defaults to `30m`, which is currently the only supported value. See the
+        defaults to `30m`. Supported lifetimes depend on the API. See the
         [prompt caching
         guide](https://developers.openai.com/api/docs/guides/prompt-caching) for
         current details.
@@ -123654,8 +123920,6 @@ components:
         - $ref: "#/components/schemas/BetaModelResponseProperties"
         - type: object
           properties:
-            prompt_cache_options:
-              $ref: "#/components/schemas/BetaPromptCacheOptionsParam"
             top_logprobs:
               description: >
                 An integer between 0 and 20 specifying the maximum number of
