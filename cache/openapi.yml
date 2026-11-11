@@ -55564,11 +55564,11 @@ components:
                 `gpt-image-2.5-sunburst-2026-09-08`, `gpt-image-2.5-flare`,
                 `gpt-image-2.5-flare-2026-09-08`, `gpt-image-2.6-sunburst`,
                 `gpt-image-2.6-flare`, or `chatgpt-image-latest`. Default:
-                `gpt-image-2`.
+                `gpt-image-2.6-sunburst`.
 
                 `gpt-image-1` was shut down on October 23, 2026. Use
                 `gpt-image-2.5-sunburst` or `gpt-image-2.5-flare` instead.
-              default: gpt-image-2
+              default: gpt-image-2.6-sunburst
         complexity:
           type: string
           enum:
@@ -56786,6 +56786,8 @@ components:
           $ref: "#/components/schemas/ModelIdsLive"
           description: The Live model to use for the accepted call.
           minLength: 1
+        safety_identifier:
+          $ref: "#/components/schemas/safety_identifier"
         instructions:
           $ref: "#/components/schemas/instructions"
         audio:
@@ -56983,6 +56985,8 @@ components:
       properties:
         model:
           $ref: "#/components/schemas/ModelIdsLive"
+        safety_identifier:
+          $ref: "#/components/schemas/safety_identifier"
         instructions:
           $ref: "#/components/schemas/instructions"
         audio:
@@ -87993,6 +87997,13 @@ components:
                 the author model's default when omitted or null.
       required:
         - model
+    safety_identifier:
+      anyOf:
+        - description: A stable identifier for your end user, used for safety monitoring
+            and abuse detection.
+          type: string
+          maxLength: 128
+        - type: "null"
     instructions:
       anyOf:
         - description: Frontend instructions for voice, conversation, interruptions, and
@@ -92782,9 +92793,14 @@ components:
         instructions:
           anyOf:
             - type: string
-              description: Custom instructions for compaction. On models 6.2 and later,
-                replaying a compaction created with custom instructions can
-                cause Responses to drop subsequent reasoning items.
+              description: >-
+                A system (or developer) message inserted into the model's
+                context.
+
+                When used along with `previous_response_id`, the instructions
+                from a previous response will not be carried over to the next
+                response. This makes it simple to swap out system (or developer)
+                messages in new responses.
               deprecated: true
             - type: "null"
         image:
@@ -101958,6 +101974,77 @@ components:
         - The session is waiting for one or more required actions.
         - The session failed.
       description: The current status of a session.
+    McpApprovalRequestResourceMcpToolCall:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - mcp_tool_call
+          default: mcp_tool_call
+          x-stainless-const: true
+          description: The type of the object. Always `mcp_tool_call`.
+        server_label:
+          type: string
+          minLength: 0
+        name:
+          type:
+            - string
+            - "null"
+          minLength: 0
+          description: The tool name, or null when CCA does not provide it.
+        arguments:
+          anyOf:
+            - {}
+            - type: "null"
+          description: The tool arguments as JSON, or null when CCA does not provide them.
+        message:
+          type: string
+          minLength: 0
+      required:
+        - type
+        - server_label
+        - name
+        - arguments
+        - message
+      additionalProperties: false
+    McpApprovalRequestResource:
+      oneOf:
+        - $ref: "#/components/schemas/McpApprovalRequestResourceMcpToolCall"
+      discriminator:
+        propertyName: type
+        mapping:
+          mcp_tool_call: "#/components/schemas/McpApprovalRequestResourceMcpToolCall"
+      x-oai-discriminator-values:
+        - mcp_tool_call
+      description: Information for presenting an MCP approval.
+    SessionRequiredActionResourceMcpApprovalRequest:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - mcp_approval_request
+          default: mcp_approval_request
+          x-stainless-const: true
+          description: The type of the object. Always `mcp_approval_request`.
+        turn_id:
+          type: string
+          minLength: 0
+          description: The turn that requested approval.
+        request_id:
+          type: string
+          minLength: 0
+          description: The opaque approval ID to echo when responding.
+        request:
+          $ref: "#/components/schemas/McpApprovalRequestResource"
+      required:
+        - type
+        - turn_id
+        - request_id
+        - request
+      additionalProperties: false
+      description: Respond to an MCP tool-call approval request.
     ComputerUseApprovalRequestKindResourceBrowserAuthentication:
       type: object
       properties:
@@ -102125,6 +102212,7 @@ components:
       description: Reconnect a session environment.
     SessionRequiredActionResource:
       oneOf:
+        - $ref: "#/components/schemas/SessionRequiredActionResourceMcpApprovalRequest"
         - $ref: "#/components/schemas/SessionRequiredActionResourceComputerUseApprovalReq\
             uest"
         - $ref: "#/components/schemas/SessionRequiredActionResourceFunctionCall"
@@ -102132,12 +102220,15 @@ components:
       discriminator:
         propertyName: type
         mapping:
+          mcp_approval_request: "#/components/schemas/SessionRequiredActionResourceMcpApp\
+            rovalRequest"
           computer_use_approval_request: "#/components/schemas/SessionRequiredActionResou\
             rceComputerUseApprovalRequest"
           function_call: "#/components/schemas/SessionRequiredActionResourceFunctionCall"
           environment_connection: "#/components/schemas/SessionRequiredActionResourceEnvi\
             ronmentConnection"
       x-oai-discriminator-values:
+        - mcp_approval_request
         - computer_use_approval_request
         - function_call
         - environment_connection
@@ -104587,6 +104678,63 @@ components:
         - deleted
       additionalProperties: false
       description: Confirmation that an immutable session artifact was deleted.
+    McpApprovalDecisionParam:
+      type: string
+      enum:
+        - approve
+        - deny
+        - cancel
+    McpApprovalResponseParamMcpToolCall:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - mcp_tool_call
+          default: mcp_tool_call
+          x-stainless-const: true
+          description: The type of the object. Always `mcp_tool_call`.
+        decision:
+          $ref: "#/components/schemas/McpApprovalDecisionParam"
+          description: Cancel dismisses this request without cancelling the session or turn.
+      required:
+        - type
+        - decision
+      additionalProperties: false
+    McpApprovalResponseParam:
+      oneOf:
+        - $ref: "#/components/schemas/McpApprovalResponseParamMcpToolCall"
+      discriminator:
+        propertyName: type
+        mapping:
+          mcp_tool_call: "#/components/schemas/McpApprovalResponseParamMcpToolCall"
+      x-oai-discriminator-values:
+        - mcp_tool_call
+      description: The user's decision for a pending MCP tool call.
+    SessionInputParamAgentSessionInputMcpApprovalRequestResult:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - agent.session.input.mcp_approval_request_result
+          default: agent.session.input.mcp_approval_request_result
+          x-stainless-const: true
+          description: The type of the object. Always
+            `agent.session.input.mcp_approval_request_result`.
+        request_id:
+          type: string
+          minLength: 0
+          maxLength: 1048576
+          description: The opaque approval ID from the required action.
+        response:
+          $ref: "#/components/schemas/McpApprovalResponseParam"
+      required:
+        - type
+        - request_id
+        - response
+      additionalProperties: false
+      description: Responds to a pending MCP tool-call approval request.
     BrowserAuthenticationFieldValueParam:
       type: object
       properties:
@@ -104844,6 +104992,8 @@ components:
       description: Submits the result of a function call.
     SessionInputParam:
       oneOf:
+        - $ref: "#/components/schemas/SessionInputParamAgentSessionInputMcpApprovalReques\
+            tResult"
         - $ref: "#/components/schemas/SessionInputParamAgentSessionInputComputerUseApprov\
             alRequestResult"
         - $ref: "#/components/schemas/SessionInputParamAgentSessionInputMessage"
@@ -104852,12 +105002,15 @@ components:
       discriminator:
         propertyName: type
         mapping:
+          agent.session.input.mcp_approval_request_result: "#/components/schemas/SessionI\
+            nputParamAgentSessionInputMcpApprovalRequestResult"
           agent.session.input.computer_use_approval_request_result: "#/components/schemas\
             /SessionInputParamAgentSessionInputComputerUseApprovalRequestResult"
           agent.session.input.message: "#/components/schemas/SessionInputParamAgentSessionInputMessage"
           agent.session.input.cancel: "#/components/schemas/SessionInputParamAgentSessionInputCancel"
           agent.session.input.tool_result: "#/components/schemas/SessionInputParamAgentSessionInputToolResult"
       x-oai-discriminator-values:
+        - agent.session.input.mcp_approval_request_result
         - agent.session.input.computer_use_approval_request_result
         - agent.session.input.message
         - agent.session.input.cancel
@@ -106358,6 +106511,7 @@ components:
       type: string
       enum:
         - computer_use_approval_request
+        - mcp_approval_request
         - function_call
         - environment_connection
     AgentSessionRequiredActionPayloadResource:
@@ -106539,6 +106693,13 @@ components:
       properties:
         model:
           $ref: "#/components/schemas/ModelIdsLive"
+        safety_identifier:
+          anyOf:
+            - description: A stable identifier for your end user, used for safety monitoring
+                and abuse detection.
+              type: string
+              maxLength: 128
+            - type: "null"
         instructions:
           anyOf:
             - description: Frontend instructions for voice, conversation, interruptions, and
@@ -107754,6 +107915,13 @@ components:
       properties:
         model:
           $ref: "#/components/schemas/ModelIdsLive"
+        safety_identifier:
+          anyOf:
+            - description: A stable identifier for your end user, used for safety monitoring
+                and abuse detection.
+              type: string
+              maxLength: 128
+            - type: "null"
         instructions:
           anyOf:
             - description: Frontend instructions for voice, conversation, interruptions, and
@@ -111054,11 +111222,11 @@ components:
                 `gpt-image-2.5-sunburst-2026-09-08`, `gpt-image-2.5-flare`,
                 `gpt-image-2.5-flare-2026-09-08`, `gpt-image-2.6-sunburst`,
                 `gpt-image-2.6-flare`, or `chatgpt-image-latest`. Default:
-                `gpt-image-2`.
+                `gpt-image-2.6-sunburst`.
 
                 `gpt-image-1` was shut down on October 23, 2026. Use
                 `gpt-image-2.5-sunburst` or `gpt-image-2.5-flare` instead.
-              default: gpt-image-2
+              default: gpt-image-2.6-sunburst
         complexity:
           type: string
           enum:
@@ -115664,9 +115832,14 @@ components:
         instructions:
           anyOf:
             - type: string
-              description: Custom instructions for compaction. On models 6.2 and later,
-                replaying a compaction created with custom instructions can
-                cause Responses to drop subsequent reasoning items.
+              description: >-
+                A system (or developer) message inserted into the model's
+                context.
+
+                When used along with `previous_response_id`, the instructions
+                from a previous response will not be carried over to the next
+                response. This makes it simple to swap out system (or developer)
+                messages in new responses.
               deprecated: true
             - type: "null"
         image:
