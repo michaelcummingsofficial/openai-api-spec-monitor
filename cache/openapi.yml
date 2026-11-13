@@ -43291,10 +43291,8 @@ components:
           type: string
         object:
           type: string
-          enum:
-            - batch
+          const: batch
           description: The object type, which is always `batch`.
-          x-stainless-const: true
         endpoint:
           type: string
           description: The OpenAI API endpoint used by the batch.
@@ -43539,9 +43537,7 @@ components:
             Supported anchors: `created_at`. Note that the anchor is the file
             creation time, not the time the batch is created."
           type: string
-          enum:
-            - created_at
-          x-stainless-const: true
+          const: created_at
         seconds:
           description: The number of seconds after the anchor time that the file will
             expire. Must be between 3600 (1 hour) and 2592000 (30 days).
@@ -51130,9 +51126,7 @@ components:
           type: string
         object:
           type: string
-          enum:
-            - file
-          x-stainless-const: true
+          const: file
         deleted:
           type: boolean
       required:
@@ -56372,9 +56366,7 @@ components:
           type: boolean
         object:
           type: string
-          enum:
-            - list
-          x-stainless-const: true
+          const: list
       required:
         - object
         - data
@@ -59278,9 +59270,7 @@ components:
         object:
           type: string
           description: The object type, which is always `file`.
-          enum:
-            - file
-          x-stainless-const: true
+          const: file
         purpose:
           type: string
           description: The intended purpose of the file. Supported values are
@@ -79724,9 +79714,7 @@ components:
         object:
           type: string
           description: The object type, which is always "upload".
-          enum:
-            - upload
-          x-stainless-const: true
+          const: upload
         file:
           description: The ready File object after the Upload is completed.
           anyOf:
@@ -79794,9 +79782,7 @@ components:
         object:
           type: string
           description: The object type, which is always `upload.part`.
-          enum:
-            - upload.part
-          x-stainless-const: true
+          const: upload.part
       required:
         - created_at
         - id
@@ -95634,7 +95620,7 @@ components:
       properties:
         async:
           type: boolean
-          description: Whether context is compacted in the background. Defaults to true.
+          description: Whether context is compacted in the background. Defaults to false.
       required:
         - async
       additionalProperties: false
@@ -96697,7 +96683,7 @@ components:
             - boolean
             - "null"
           description: Whether to compact context in the background. Omission or null
-            defaults to true. Set to false to use blocking compaction.
+            defaults to false. Set to true to enable background compaction.
             Background compaction may increase token usage.
       additionalProperties: false
       description: Settings for compacting the agent's context.
@@ -97179,8 +97165,8 @@ components:
             - $ref: "#/components/schemas/CompactionParam"
             - type: "null"
           description: Context compaction settings. Omit to keep the current settings. A
-            supplied object replaces the settings; null or an empty object
-            enables background compaction.
+            supplied object replaces the settings; null or an empty object uses
+            blocking compaction.
         tools:
           type:
             - array
@@ -101259,7 +101245,7 @@ components:
           anyOf:
             - $ref: "#/components/schemas/CompactionParam"
             - type: "null"
-          description: Context compaction settings. Omission or null enables background
+          description: Context compaction settings. Omission or null uses blocking
             compaction.
       required:
         - model
@@ -101313,8 +101299,8 @@ components:
             - $ref: "#/components/schemas/CompactionParam"
             - type: "null"
           description: Context compaction settings. Omit to keep the current settings. A
-            supplied object replaces the settings; null or an empty object
-            enables background compaction.
+            supplied object replaces the settings; null or an empty object uses
+            blocking compaction.
         metadata:
           type:
             - object
