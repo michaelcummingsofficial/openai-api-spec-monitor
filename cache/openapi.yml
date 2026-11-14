@@ -48028,9 +48028,7 @@ components:
                 are updated less frequently, but with lower variance.
               oneOf:
                 - type: string
-                  enum:
-                    - auto
-                  x-stainless-const: true
+                  const: auto
                 - type: integer
                   minimum: 1
                   maximum: 256
@@ -48043,9 +48041,7 @@ components:
                 overfitting.
               oneOf:
                 - type: string
-                  enum:
-                    - auto
-                  x-stainless-const: true
+                  const: auto
                 - type: number
                   exclusiveMinimum: 0
               default: auto
@@ -48057,9 +48053,7 @@ components:
                 through the training dataset.
               oneOf:
                 - type: string
-                  enum:
-                    - auto
-                  x-stainless-const: true
+                  const: auto
                 - type: integer
                   minimum: 1
                   maximum: 50
@@ -48112,9 +48106,7 @@ components:
                   (Weights and Biases) is supported.
                 oneOf:
                   - type: string
-                    enum:
-                      - wandb
-                    x-stainless-const: true
+                    const: wandb
               wandb:
                 type: object
                 description: >
@@ -51143,9 +51135,7 @@ components:
         object:
           type: string
           description: The object type, which is always "checkpoint.permission".
-          enum:
-            - checkpoint.permission
-          x-stainless-const: true
+          const: checkpoint.permission
         deleted:
           type: boolean
           description: Whether the fine-tuned model checkpoint permission was successfully
@@ -53341,9 +53331,7 @@ components:
             the weight of the penalty between the policy and reference model.
           oneOf:
             - type: string
-              enum:
-                - auto
-              x-stainless-const: true
+              const: auto
             - type: number
               maximum: 2
               exclusiveMinimum: 0
@@ -53355,9 +53343,7 @@ components:
             variance.
           oneOf:
             - type: string
-              enum:
-                - auto
-              x-stainless-const: true
+              const: auto
             - type: integer
               minimum: 1
               maximum: 256
@@ -53368,9 +53354,7 @@ components:
             useful to avoid overfitting.
           oneOf:
             - type: string
-              enum:
-                - auto
-              x-stainless-const: true
+              const: auto
             - type: number
               exclusiveMinimum: 0
           default: auto
@@ -53380,9 +53364,7 @@ components:
             full cycle through the training dataset.
           oneOf:
             - type: string
-              enum:
-                - auto
-              x-stainless-const: true
+              const: auto
             - type: integer
               minimum: 1
               maximum: 50
@@ -53424,9 +53406,7 @@ components:
             variance.
           oneOf:
             - type: string
-              enum:
-                - auto
-              x-stainless-const: true
+              const: auto
             - type: integer
               minimum: 1
               maximum: 256
@@ -53437,9 +53417,7 @@ components:
             useful to avoid overfitting.
           oneOf:
             - type: string
-              enum:
-                - auto
-              x-stainless-const: true
+              const: auto
             - type: number
               exclusiveMinimum: 0
           default: auto
@@ -53449,9 +53427,7 @@ components:
             full cycle through the training dataset.
           oneOf:
             - type: string
-              enum:
-                - auto
-              x-stainless-const: true
+              const: auto
             - type: integer
               minimum: 1
               maximum: 50
@@ -53472,9 +53448,7 @@ components:
             during training.
           oneOf:
             - type: string
-              enum:
-                - auto
-              x-stainless-const: true
+              const: auto
             - type: number
               maximum: 10
               exclusiveMinimum: 0.00001
@@ -53484,9 +53458,7 @@ components:
             The number of training steps between evaluation runs.
           oneOf:
             - type: string
-              enum:
-                - auto
-              x-stainless-const: true
+              const: auto
             - type: integer
               minimum: 1
           default: auto
@@ -53495,9 +53467,7 @@ components:
             Number of evaluation samples to generate per training step.
           oneOf:
             - type: string
-              enum:
-                - auto
-              x-stainless-const: true
+              const: auto
             - type: integer
               minimum: 1
           default: auto
@@ -53529,9 +53499,7 @@ components:
             variance.
           oneOf:
             - type: string
-              enum:
-                - auto
-              x-stainless-const: true
+              const: auto
             - type: integer
               minimum: 1
               maximum: 256
@@ -53542,9 +53510,7 @@ components:
             useful to avoid overfitting.
           oneOf:
             - type: string
-              enum:
-                - auto
-              x-stainless-const: true
+              const: auto
             - type: number
               exclusiveMinimum: 0
           default: auto
@@ -53554,9 +53520,7 @@ components:
             full cycle through the training dataset.
           oneOf:
             - type: string
-              enum:
-                - auto
-              x-stainless-const: true
+              const: auto
             - type: integer
               minimum: 1
               maximum: 50
@@ -53588,9 +53552,7 @@ components:
         object:
           type: string
           description: The object type, which is always "checkpoint.permission".
-          enum:
-            - checkpoint.permission
-          x-stainless-const: true
+          const: checkpoint.permission
       required:
         - created_at
         - id
@@ -53615,9 +53577,7 @@ components:
         type:
           type: string
           description: The type of the integration being enabled for the fine-tuning job
-          enum:
-            - wandb
-          x-stainless-const: true
+          const: wandb
         wandb:
           type: object
           description: >
@@ -53736,9 +53696,7 @@ components:
                     are updated less frequently, but with lower variance.
                   oneOf:
                     - type: string
-                      enum:
-                        - auto
-                      x-stainless-const: true
+                      const: auto
                     - type: integer
                       minimum: 1
                       maximum: 256
@@ -53752,9 +53710,7 @@ components:
                 overfitting.
               oneOf:
                 - type: string
-                  enum:
-                    - auto
-                  x-stainless-const: true
+                  const: auto
                 - type: number
                   exclusiveMinimum: 0
               default: auto
@@ -53766,9 +53722,7 @@ components:
                 through the training dataset.
               oneOf:
                 - type: string
-                  enum:
-                    - auto
-                  x-stainless-const: true
+                  const: auto
                 - type: integer
                   minimum: 1
                   maximum: 50
@@ -53779,9 +53733,7 @@ components:
         object:
           type: string
           description: The object type, which is always "fine_tuning.job".
-          enum:
-            - fine_tuning.job
-          x-stainless-const: true
+          const: fine_tuning.job
         organization_id:
           type: string
           description: The organization that owns the fine-tuning job.
@@ -53972,9 +53924,7 @@ components:
         object:
           type: string
           description: The object type, which is always "fine_tuning.job.checkpoint".
-          enum:
-            - fine_tuning.job.checkpoint
-          x-stainless-const: true
+          const: fine_tuning.job.checkpoint
       required:
         - created_at
         - fine_tuning_job_id
@@ -54010,9 +53960,7 @@ components:
         object:
           type: string
           description: The object type, which is always "fine_tuning.job.event".
-          enum:
-            - fine_tuning.job.event
-          x-stainless-const: true
+          const: fine_tuning.job.event
         id:
           type: string
           description: The object identifier.
@@ -56435,9 +56383,7 @@ components:
             $ref: "#/components/schemas/FineTuningCheckpointPermission"
         object:
           type: string
-          enum:
-            - list
-          x-stainless-const: true
+          const: list
         first_id:
           anyOf:
             - type: string
@@ -56461,9 +56407,7 @@ components:
             $ref: "#/components/schemas/FineTuningJobCheckpoint"
         object:
           type: string
-          enum:
-            - list
-          x-stainless-const: true
+          const: list
         first_id:
           anyOf:
             - type: string
@@ -56487,9 +56431,7 @@ components:
             $ref: "#/components/schemas/FineTuningJobEvent"
         object:
           type: string
-          enum:
-            - list
-          x-stainless-const: true
+          const: list
         has_more:
           type: boolean
       required:
@@ -56546,9 +56488,7 @@ components:
           type: boolean
         object:
           type: string
-          enum:
-            - list
-          x-stainless-const: true
+          const: list
       required:
         - object
         - data
@@ -81899,9 +81839,7 @@ components:
             type:
               type: string
               description: The event type. Always `agent.environment.expired`.
-              enum:
-                - agent.environment.expired
-              x-stainless-const: true
+              const: agent.environment.expired
             data:
               $ref: "#/components/schemas/AgentEnvironmentEvent"
       x-oaiMeta:
@@ -81931,9 +81869,7 @@ components:
             type:
               type: string
               description: The event type. Always `agent.environment.failed`.
-              enum:
-                - agent.environment.failed
-              x-stainless-const: true
+              const: agent.environment.failed
             data:
               $ref: "#/components/schemas/AgentEnvironmentEvent"
       x-oaiMeta:
@@ -81963,9 +81899,7 @@ components:
             type:
               type: string
               description: The event type. Always `agent.environment.ready`.
-              enum:
-                - agent.environment.ready
-              x-stainless-const: true
+              const: agent.environment.ready
             data:
               $ref: "#/components/schemas/AgentEnvironmentEvent"
       x-oaiMeta:
@@ -81995,9 +81929,7 @@ components:
             type:
               type: string
               description: The event type. Always `agent.environment.suspended`.
-              enum:
-                - agent.environment.suspended
-              x-stainless-const: true
+              const: agent.environment.suspended
             data:
               $ref: "#/components/schemas/AgentEnvironmentEvent"
       x-oaiMeta:
@@ -82027,9 +81959,7 @@ components:
             type:
               type: string
               description: The event type. Always `agent.session.action_required`.
-              enum:
-                - agent.session.action_required
-              x-stainless-const: true
+              const: agent.session.action_required
             data:
               $ref: "#/components/schemas/AgentSessionActionRequiredPayloadResource"
       x-oaiMeta:
@@ -82058,9 +81988,7 @@ components:
             type:
               type: string
               description: The event type. Always `agent.session.created`.
-              enum:
-                - agent.session.created
-              x-stainless-const: true
+              const: agent.session.created
             data:
               $ref: "#/components/schemas/AgentSessionCreatedPayloadResource"
       x-oaiMeta:
@@ -82087,9 +82015,7 @@ components:
         object:
           type: string
           description: The object type. Always `event`.
-          enum:
-            - event
-          x-stainless-const: true
+          const: event
         created_at:
           type: integer
           format: unixtime
@@ -82109,9 +82035,7 @@ components:
             type:
               type: string
               description: The event type. Always `agent.session.failed`.
-              enum:
-                - agent.session.failed
-              x-stainless-const: true
+              const: agent.session.failed
             data:
               $ref: "#/components/schemas/AgentSessionEnvironmentPayloadResource"
       x-oaiMeta:
@@ -82140,9 +82064,7 @@ components:
             type:
               type: string
               description: The event type. Always `agent.session.idle`.
-              enum:
-                - agent.session.idle
-              x-stainless-const: true
+              const: agent.session.idle
             data:
               $ref: "#/components/schemas/AgentSessionEnvironmentPayloadResource"
       x-oaiMeta:
@@ -82171,9 +82093,7 @@ components:
             type:
               type: string
               description: The event type. Always `agent.session.in_progress`.
-              enum:
-                - agent.session.in_progress
-              x-stainless-const: true
+              const: agent.session.in_progress
             data:
               $ref: "#/components/schemas/AgentSessionEnvironmentPayloadResource"
       x-oaiMeta:
@@ -82223,16 +82143,12 @@ components:
           type: string
           description: |
             The object of the event. Always `event`.
-          enum:
-            - event
-          x-stainless-const: true
+          const: event
         type:
           type: string
           description: |
             The type of the event. Always `batch.cancelled`.
-          enum:
-            - batch.cancelled
-          x-stainless-const: true
+          const: batch.cancelled
       x-oaiMeta:
         name: batch.cancelled
         group: webhook-events
@@ -82281,16 +82197,12 @@ components:
           type: string
           description: |
             The object of the event. Always `event`.
-          enum:
-            - event
-          x-stainless-const: true
+          const: event
         type:
           type: string
           description: |
             The type of the event. Always `batch.completed`.
-          enum:
-            - batch.completed
-          x-stainless-const: true
+          const: batch.completed
       x-oaiMeta:
         name: batch.completed
         group: webhook-events
@@ -82339,16 +82251,12 @@ components:
           type: string
           description: |
             The object of the event. Always `event`.
-          enum:
-            - event
-          x-stainless-const: true
+          const: event
         type:
           type: string
           description: |
             The type of the event. Always `batch.expired`.
-          enum:
-            - batch.expired
-          x-stainless-const: true
+          const: batch.expired
       x-oaiMeta:
         name: batch.expired
         group: webhook-events
@@ -82396,16 +82304,12 @@ components:
           type: string
           description: |
             The object of the event. Always `event`.
-          enum:
-            - event
-          x-stainless-const: true
+          const: event
         type:
           type: string
           description: |
             The type of the event. Always `batch.failed`.
-          enum:
-            - batch.failed
-          x-stainless-const: true
+          const: batch.failed
       x-oaiMeta:
         name: batch.failed
         group: webhook-events
@@ -82453,16 +82357,12 @@ components:
           type: string
           description: |
             The object of the event. Always `event`.
-          enum:
-            - event
-          x-stainless-const: true
+          const: event
         type:
           type: string
           description: |
             The type of the event. Always `eval.run.canceled`.
-          enum:
-            - eval.run.canceled
-          x-stainless-const: true
+          const: eval.run.canceled
       x-oaiMeta:
         name: eval.run.canceled
         group: webhook-events
@@ -82510,16 +82410,12 @@ components:
           type: string
           description: |
             The object of the event. Always `event`.
-          enum:
-            - event
-          x-stainless-const: true
+          const: event
         type:
           type: string
           description: |
             The type of the event. Always `eval.run.failed`.
-          enum:
-            - eval.run.failed
-          x-stainless-const: true
+          const: eval.run.failed
       x-oaiMeta:
         name: eval.run.failed
         group: webhook-events
@@ -82567,16 +82463,12 @@ components:
           type: string
           description: |
             The object of the event. Always `event`.
-          enum:
-            - event
-          x-stainless-const: true
+          const: event
         type:
           type: string
           description: |
             The type of the event. Always `eval.run.succeeded`.
-          enum:
-            - eval.run.succeeded
-          x-stainless-const: true
+          const: eval.run.succeeded
       x-oaiMeta:
         name: eval.run.succeeded
         group: webhook-events
@@ -82625,16 +82517,12 @@ components:
           type: string
           description: |
             The object of the event. Always `event`.
-          enum:
-            - event
-          x-stainless-const: true
+          const: event
         type:
           type: string
           description: |
             The type of the event. Always `fine_tuning.job.cancelled`.
-          enum:
-            - fine_tuning.job.cancelled
-          x-stainless-const: true
+          const: fine_tuning.job.cancelled
       x-oaiMeta:
         name: fine_tuning.job.cancelled
         group: webhook-events
@@ -82682,16 +82570,12 @@ components:
           type: string
           description: |
             The object of the event. Always `event`.
-          enum:
-            - event
-          x-stainless-const: true
+          const: event
         type:
           type: string
           description: |
             The type of the event. Always `fine_tuning.job.failed`.
-          enum:
-            - fine_tuning.job.failed
-          x-stainless-const: true
+          const: fine_tuning.job.failed
       x-oaiMeta:
         name: fine_tuning.job.failed
         group: webhook-events
@@ -82740,16 +82624,12 @@ components:
           type: string
           description: |
             The object of the event. Always `event`.
-          enum:
-            - event
-          x-stainless-const: true
+          const: event
         type:
           type: string
           description: |
             The type of the event. Always `fine_tuning.job.succeeded`.
-          enum:
-            - fine_tuning.job.succeeded
-          x-stainless-const: true
+          const: fine_tuning.job.succeeded
       x-oaiMeta:
         name: fine_tuning.job.succeeded
         group: webhook-events
@@ -82860,16 +82740,12 @@ components:
           type: string
           description: |
             The object of the event. Always `event`.
-          enum:
-            - event
-          x-stainless-const: true
+          const: event
         type:
           type: string
           description: |
             The type of the event. Always `live.call.incoming`.
-          enum:
-            - live.call.incoming
-          x-stainless-const: true
+          const: live.call.incoming
       x-oaiMeta:
         name: live.call.incoming
         group: webhook-events
@@ -82906,18 +82782,14 @@ components:
           description: The webhook event ID.
         object:
           type: string
-          enum:
-            - event
-          x-stainless-const: true
+          const: event
         created_at:
           type: integer
           format: unixtime
           description: Unix time in seconds when the event was created.
         type:
           type: string
-          enum:
-            - live.transport.connected
-          x-stainless-const: true
+          const: live.transport.connected
         data:
           type: object
           required:
@@ -82980,9 +82852,7 @@ components:
             type:
               type: string
               description: The incoming transport type. Always `sip`.
-              enum:
-                - sip
-              x-stainless-const: true
+              const: sip
             session_id:
               type: string
               description: >
@@ -83038,16 +82908,12 @@ components:
           type: string
           description: |
             The object of the event. Always `event`.
-          enum:
-            - event
-          x-stainless-const: true
+          const: event
         type:
           type: string
           description: |
             The type of the event. Always `live.transport.incoming`.
-          enum:
-            - live.transport.incoming
-          x-stainless-const: true
+          const: live.transport.incoming
       x-oaiMeta:
         name: live.transport.incoming
         group: webhook-events
@@ -83160,16 +83026,12 @@ components:
           type: string
           description: |
             The object of the event. Always `event`.
-          enum:
-            - event
-          x-stainless-const: true
+          const: event
         type:
           type: string
           description: |
             The type of the event. Always `realtime.call.incoming`.
-          enum:
-            - realtime.call.incoming
-          x-stainless-const: true
+          const: realtime.call.incoming
       x-oaiMeta:
         name: realtime.call.incoming
         group: webhook-events
@@ -83224,16 +83086,12 @@ components:
           type: string
           description: |
             The object of the event. Always `event`.
-          enum:
-            - event
-          x-stainless-const: true
+          const: event
         type:
           type: string
           description: |
             The type of the event. Always `response.cancelled`.
-          enum:
-            - response.cancelled
-          x-stainless-const: true
+          const: response.cancelled
       x-oaiMeta:
         name: response.cancelled
         group: webhook-events
@@ -83282,16 +83140,12 @@ components:
           type: string
           description: |
             The object of the event. Always `event`.
-          enum:
-            - event
-          x-stainless-const: true
+          const: event
         type:
           type: string
           description: |
             The type of the event. Always `response.completed`.
-          enum:
-            - response.completed
-          x-stainless-const: true
+          const: response.completed
       x-oaiMeta:
         name: response.completed
         group: webhook-events
@@ -83339,16 +83193,12 @@ components:
           type: string
           description: |
             The object of the event. Always `event`.
-          enum:
-            - event
-          x-stainless-const: true
+          const: event
         type:
           type: string
           description: |
             The type of the event. Always `response.failed`.
-          enum:
-            - response.failed
-          x-stainless-const: true
+          const: response.failed
       x-oaiMeta:
         name: response.failed
         group: webhook-events
@@ -83397,16 +83247,12 @@ components:
           type: string
           description: |
             The object of the event. Always `event`.
-          enum:
-            - event
-          x-stainless-const: true
+          const: event
         type:
           type: string
           description: |
             The type of the event. Always `response.incomplete`.
-          enum:
-            - response.incomplete
-          x-stainless-const: true
+          const: response.incomplete
       x-oaiMeta:
         name: response.incomplete
         group: webhook-events
@@ -83435,9 +83281,7 @@ components:
           description: The unique ID of the webhook event.
         object:
           type: string
-          enum:
-            - event
-          x-stainless-const: true
+          const: event
           description: Always `event`.
         created_at:
           type: integer
@@ -83445,9 +83289,7 @@ components:
           description: The Unix timestamp in seconds when the event was created.
         type:
           type: string
-          enum:
-            - safety.alert.created
-          x-stainless-const: true
+          const: safety.alert.created
           description: Always `safety.alert.created`.
         data:
           type: object
@@ -83487,9 +83329,7 @@ components:
           description: The unique ID of the webhook event.
         object:
           type: string
-          enum:
-            - event
-          x-stainless-const: true
+          const: event
           description: Always `event`.
         created_at:
           type: integer
@@ -83497,9 +83337,7 @@ components:
           description: The Unix timestamp in seconds when the event was created.
         type:
           type: string
-          enum:
-            - safety.deactivation_issued
-          x-stainless-const: true
+          const: safety.deactivation_issued
           description: Always `safety.deactivation_issued`.
         data:
           type: object
@@ -83538,9 +83376,7 @@ components:
           description: The unique ID of the webhook event.
         object:
           type: string
-          enum:
-            - event
-          x-stainless-const: true
+          const: event
           description: Always `event`.
         created_at:
           type: integer
@@ -83548,9 +83384,7 @@ components:
           description: The Unix timestamp in seconds when the event was created.
         type:
           type: string
-          enum:
-            - safety.org_alert.created
-          x-stainless-const: true
+          const: safety.org_alert.created
           description: Always `safety.org_alert.created`.
         data:
           type: object
@@ -83590,9 +83424,7 @@ components:
           description: The unique ID of the webhook event.
         object:
           type: string
-          enum:
-            - event
-          x-stainless-const: true
+          const: event
           description: Always `event`.
         created_at:
           type: integer
@@ -83600,9 +83432,7 @@ components:
           description: The Unix timestamp in seconds when the event was created.
         type:
           type: string
-          enum:
-            - safety.warning_issued
-          x-stainless-const: true
+          const: safety.warning_issued
           description: Always `safety.warning_issued`.
         data:
           type: object
